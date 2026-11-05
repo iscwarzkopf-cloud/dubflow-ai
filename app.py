@@ -3,7 +3,6 @@ import whisper
 from googletrans import Translator
 import asyncio
 import edge_tts
-from pydub import AudioSegment
 import os
 import subprocess
 
@@ -44,17 +43,15 @@ if video_file is not None:
             
             # ADIM 2: Whisper ile İngilizce Deşifre Etme
             durum.info("Adım 2/5: İngilizce konuşmalar yapay zeka ile çözülüyor (Whisper)...")
-            model = whisper.load_model("tiny") # Render sunucusunu yormamak için hızlı ve hafif model
+            model = whisper.load_model("tiny") # Sınırlı sunucu için hafif model
             result = model.transcribe(ses_yolu)
             
-            # ADIM 3: Çeviri ve Cinsiyet Belirleme
+            # ADIM 3: Çeviri
             durum.info("Adım 3/5: Konuşmalar Türkçeye çevriliyor ve analiz ediliyor...")
             translator = Translator()
             tam_turkce_metin = ""
             
-            # Basit bir mantık: Kelime uzunluğu veya ton geçişlerine göre kadın/erkek simüle edilir
-            # Gerçek diarization ücretsiz sunucularda RAM sınırını (512MB) aşacağı için hafif ve kararlı hiyerarşi kuruyoruz.
-            cinsiyet = "erkek" 
+            cinsiyet = "erkek" # Temel başlangıç sesi
             
             for segment in result['segments']:
                 ingilizce_metin = segment['text']
@@ -71,15 +68,15 @@ if video_file is not None:
             durum.info("Adım 5/5: Türkçe dublaj orijinal video ile birleştiriliyor...")
             cikti_video_yolu = os.path.join("temp", "turkce_dublaj_video.mp4")
             
-            # FFmpeg ile orijinal videonun görüntüsünü al, eski sesini sil, yeni Türkçe sesi üzerine ekle
+            # FFmpeg ile orijinal görüntüyü alıp yeni Türkçe sesi ekleme
             subprocess.run(["ffmpeg", "-y", "-i", orijinal_video_yolu, "-i", turkce_ses_yolu, "-c:v", "copy", "-map", "0:v:0", "-map", "1:a:0", "-shortest", cikti_video_yolu], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             
             durum.success("🎉 Başarılı! İngilizce videonuz tamamen Türkçe dublaj yapıldı!")
             
-            # Çıktı Videosunu Gösterme
-            st.subheader("🎬 Türkçe Dublajlı Video")
+            # Çıktı Videosunu Gerçek Dosyadan Okuyarak Gösterme
+            st.subheader("🎬 Türkçe Dublajlı Video (İndirilebilir)")
             with open(cikti_video_yolu, "rb") as file:
-                st.video(file.read())
+                st.video(file.read(), format="video/mp4")
                 
         except Exception as e:
             durum.error(f"Bir hata oluştu: {str(e)}. Lütfen sunucu loglarını kontrol edin.")
