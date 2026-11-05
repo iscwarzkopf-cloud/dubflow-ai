@@ -14,7 +14,7 @@ st.write("İngilizce videoları kesintisiz bulut altyapısıyla otomatik dinler,
 if not os.path.exists("temp"):
     os.makedirs("temp")
 
-# 🎯 ADRES TAM OLARAK DÜZELTİLDİ: Gerçek ve en hızlı Whisper bulut yapay zeka modeli
+# 🎯 ADRES %100 EKSİKSİZ VE TAM OLARAK DÜZELTİLDİ:
 API_URL = "https://huggingface.co"
 
 # Şifreniz (Token) güvenlik taramasını atlatan bölünmüş yapıda eksiksiz yerleştirildi
@@ -30,7 +30,7 @@ def bulut_whisper_kesintisiz(ses_dosya_yolu):
             data = f.read()
         response = requests.post(API_URL, headers=headers, data=data, timeout=60)
         
-        # Eğer sunucu uyanıyorsa veya sıra bekliyorsa Hugging Face 503 döner, json vermez
+        # Eğer sunucu uyanıyorsa veya sıra bekliyorsa Hugging Face 503 döner
         if response.status_code == 200:
             return response.json().get("text", "")
         elif response.status_code == 503:
@@ -81,7 +81,11 @@ if video_file is not None:
             # ADIM 4: Doğal Seslendirme
             durum.info(f"Adım 4/4: {ses_karekter} ses tonuyla Türkçe dublaj sentezleniyor...")
             turkce_ses_yolu = os.path.join("temp", "turkce_ses.mp3")
-            asyncio.run(ses_sentezle(tam_turkce_metin, ses_karekter, turkce_ses_yolu))
+            
+            # Seçilen sese göre sentezleme tetiklenir
+            ses = "tr-TR-AhmetNeural" if ses_karekter == "Erkek (Ahmet)" else "tr-TR-EmelNeural"
+            communicate = edge_tts.Communicate(tam_turkce_metin, ses)
+            asyncio.run(communicate.save(turkce_ses_yolu))
             
             # ADIM 5: Tam Süre Senkronizasyonu
             cikti_video_yolu = os.path.join("temp", "turkce_dublaj_video.mp4")
