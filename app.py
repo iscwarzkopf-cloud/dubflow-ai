@@ -37,5 +37,4 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="purple", secondary_hue="indigo"
         outputs=[durum_mesaji, video_output]
     )
 
-demo.queue().launch(server_name="0.0.0.0", server_port=7860)
-
+demo.queue().launch()
