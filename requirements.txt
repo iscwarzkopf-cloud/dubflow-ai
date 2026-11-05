@@ -1,4 +1,7 @@
 streamlit
 edge-tts
 googletrans-py
+openai-whisper
+pydub
+
 
